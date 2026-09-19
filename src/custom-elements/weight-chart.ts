@@ -11,7 +11,7 @@ const PADDING: ChartPadding = { top: 12, right: 12, bottom: 22, left: 36 };
  * Lightweight SVG line chart: a polyline through the measurements plus a dashed
  * horizontal target line. No external charting dependency.
  */
-@customElement('weight-tracker-cm-chart')
+@customElement('weight-tracker-cr-chart')
 export class WeightTrackerChart extends LitElement {
   @property({ attribute: false }) public points: WeightPoint[] = [];
   @property({ type: Number }) public target?: number;
@@ -92,6 +92,6 @@ export class WeightTrackerChart extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'weight-tracker-cm-chart': WeightTrackerChart;
+    'weight-tracker-cr-chart': WeightTrackerChart;
   }
 }

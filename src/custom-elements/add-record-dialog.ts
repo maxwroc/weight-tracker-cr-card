@@ -11,7 +11,7 @@ export interface AddRecordSubmitDetail {
  * pre-filling values passed in `prefill` (e.g. the card's filter values), and
  * dispatches a `submit` event with the collected field values.
  */
-@customElement('weight-tracker-cm-add-dialog')
+@customElement('weight-tracker-cr-add-dialog')
 export class WeightTrackerAddDialog extends LitElement {
   @property({ type: Boolean }) public open = false;
   @property({ attribute: false }) public fields: RecordTypeField[] = [];
@@ -213,6 +213,6 @@ export class WeightTrackerAddDialog extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'weight-tracker-cm-add-dialog': WeightTrackerAddDialog;
+    'weight-tracker-cr-add-dialog': WeightTrackerAddDialog;
   }
 }

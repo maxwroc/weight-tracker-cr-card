@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CustomMetricsDataSource } from '../src/data/custom-metrics-source';
+import { CustomRecordsDataSource } from '../src/data/custom-records-source';
 import type { HomeAssistantExt } from '../src/types';
 import { resolvePeriod } from '../src/logic/period';
 
@@ -12,10 +12,31 @@ function mockHass(handler: (msg: any) => any): HomeAssistantExt {
   } as unknown as HomeAssistantExt;
 }
 
-describe('CustomMetricsDataSource', () => {
+describe('CustomRecordsDataSource', () => {
+  it('subscribes to the canonical update event and returns its unsubscribe function', async () => {
+    const unsubscribe = vi.fn();
+    const subscribeEvents = vi.fn(async (_callback: () => void, _eventType: string) => unsubscribe);
+    const hass = mockHass(() => ({}));
+    Object.assign(hass.connection, { subscribeEvents });
+    const source = new CustomRecordsDataSource(hass, { recordType: 'weight' });
+    const callback = vi.fn();
+
+    const stop = await source.subscribeUpdates(callback);
+
+    expect(subscribeEvents).toHaveBeenCalledExactlyOnceWith(
+      expect.any(Function),
+      'custom_records_updated',
+    );
+    subscribeEvents.mock.calls[0][0]();
+    expect(callback).toHaveBeenCalledOnce();
+    expect(stop).toBe(unsubscribe);
+    stop();
+    expect(unsubscribe).toHaveBeenCalledOnce();
+  });
+
   it('fetches raw records for the 7d view and maps timestamp/value', async () => {
     const hass = mockHass((msg) => {
-      expect(msg.type).toBe('custom_metrics/list_records');
+      expect(msg.type).toBe('custom_records/list_records');
       expect(msg.record_type).toBe('weight');
       expect(msg.limit).toBe(500);
       return {
@@ -25,7 +46,7 @@ describe('CustomMetricsDataSource', () => {
         ],
       };
     });
-    const source = new CustomMetricsDataSource(hass, { recordType: 'weight', valueField: 'weight' });
+    const source = new CustomRecordsDataSource(hass, { recordType: 'weight', valueField: 'weight' });
 
     const points = await source.fetchPoints(resolvePeriod('7d', new Date('2024-06-15T00:00:00Z')));
 
@@ -38,13 +59,13 @@ describe('CustomMetricsDataSource', () => {
 
   it('uses aggregate_records with apexcharts format for bucketed views', async () => {
     const hass = mockHass((msg) => {
-      expect(msg.type).toBe('custom_metrics/aggregate_records');
+      expect(msg.type).toBe('custom_records/aggregate_records');
       expect(msg.op).toBe('avg');
       expect(msg.bucket).toBe('week');
       expect(msg.format).toBe('apexcharts');
       return { series: [{ name: 'weight', data: [{ x: 1000, y: 95 }, { x: 2000, y: 94 }] }] };
     });
-    const source = new CustomMetricsDataSource(hass, { recordType: 'weight', valueField: 'weight' });
+    const source = new CustomRecordsDataSource(hass, { recordType: 'weight', valueField: 'weight' });
 
     const points = await source.fetchPoints(resolvePeriod('1y', new Date('2024-06-15T00:00:00Z')));
 
@@ -58,7 +79,7 @@ describe('CustomMetricsDataSource', () => {
     const sent: any[] = [];
     const hass = mockHass((msg) => {
       sent.push(msg);
-      if (msg.type === 'custom_metrics/list_record_types') {
+      if (msg.type === 'custom_records/list_record_types') {
         return {
           record_types: [
             {
@@ -74,14 +95,14 @@ describe('CustomMetricsDataSource', () => {
       }
       return { records: [] };
     });
-    const source = new CustomMetricsDataSource(hass, { recordType: 'weight' });
+    const source = new CustomRecordsDataSource(hass, { recordType: 'weight' });
 
     await source.fetchPoints(resolvePeriod('7d'));
 
     // It should have asked for the record types to discover the numeric field...
-    expect(sent.some((m) => m.type === 'custom_metrics/list_record_types')).toBe(true);
+    expect(sent.some((m) => m.type === 'custom_records/list_record_types')).toBe(true);
     // ...then fetched records for the resolved field without throwing.
-    expect(sent.some((m) => m.type === 'custom_metrics/list_records')).toBe(true);
+    expect(sent.some((m) => m.type === 'custom_records/list_records')).toBe(true);
   });
 
   it('sends add_record with fields and an ISO timestamp', async () => {
@@ -90,12 +111,12 @@ describe('CustomMetricsDataSource', () => {
       captured = msg;
       return {};
     });
-    const source = new CustomMetricsDataSource(hass, { recordType: 'weight' });
+    const source = new CustomRecordsDataSource(hass, { recordType: 'weight' });
     const ts = new Date('2024-06-15T08:30:00Z');
 
     await source.addRecord({ weight: 90 }, ts);
 
-    expect(captured.type).toBe('custom_metrics/add_record');
+    expect(captured.type).toBe('custom_records/add_record');
     expect(captured.record_type).toBe('weight');
     expect(captured.fields).toEqual({ weight: 90 });
     expect(captured.timestamp).toBe(ts.toISOString());
@@ -103,12 +124,12 @@ describe('CustomMetricsDataSource', () => {
 
   it('throws a helpful error when no numeric field can be found', async () => {
     const hass = mockHass((msg) => {
-      if (msg.type === 'custom_metrics/list_record_types') {
+      if (msg.type === 'custom_records/list_record_types') {
         return { record_types: [{ id: 'weight', fields: [{ key: 'note', label: 'Note', type: 'text' }] }] };
       }
       return { records: [] };
     });
-    const source = new CustomMetricsDataSource(hass, { recordType: 'weight' });
+    const source = new CustomRecordsDataSource(hass, { recordType: 'weight' });
 
     await expect(source.fetchPoints(resolvePeriod('7d'))).rejects.toThrow(/value_field/);
   });

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Weight Tracker CM Card — demo</title>
+    <title>Weight Tracker CR Card — demo</title>
     <style>
       body {
         font-family: Roboto, system-ui, sans-serif;
@@ -36,11 +36,11 @@
   </head>
   <body>
     <div class="wrap">
-      <weight-tracker-cm-card id="card"></weight-tracker-cm-card>
+      <weight-tracker-cr-card id="card"></weight-tracker-cr-card>
     </div>
 
     <script type="module">
-      import '../dist/weight-tracker-cm-card.js';
+      import '../dist/weight-tracker-cr-card.js';
 
       // --- Build a year of synthetic weight data (descending 104.6 -> ~93). ---
       const now = Date.now();
@@ -82,7 +82,7 @@
       const connection = {
         async sendMessagePromise(msg) {
           switch (msg.type) {
-            case 'custom_metrics/list_record_types':
+            case 'custom_records/list_record_types':
               return {
                 record_types: [
                   {
@@ -92,19 +92,19 @@
                   },
                 ],
               };
-            case 'custom_metrics/list_records':
+            case 'custom_records/list_records':
               return inRange(msg.start, msg.end);
-            case 'custom_metrics/aggregate_records': {
+            case 'custom_records/aggregate_records': {
               const bucketMs = msg.bucket === 'week' ? 7 * DAY : DAY;
               return { series: [{ name: 'weight', data: aggregate(msg.start, msg.end, bucketMs) }] };
             }
-            case 'custom_metrics/add_record':
+            case 'custom_records/add_record':
               records.push({
                 id: records.length + 1,
                 timestamp: new Date().toISOString(),
                 ...msg.fields,
               });
-              window.dispatchEvent(new Event('cm-updated'));
+              window.dispatchEvent(new Event('cr-updated'));
               return {};
             default:
               return {};
@@ -112,14 +112,14 @@
         },
         async subscribeEvents(cb) {
           const handler = () => cb({});
-          window.addEventListener('cm-updated', handler);
-          return () => window.removeEventListener('cm-updated', handler);
+          window.addEventListener('cr-updated', handler);
+          return () => window.removeEventListener('cr-updated', handler);
         },
       };
 
       const card = document.getElementById('card');
       card.setConfig({
-        type: 'custom:weight-tracker-cm-card',
+        type: 'custom:weight-tracker-cr-card',
         title: 'Weight Tracker',
         record_type: 'body_weight',
         value_field: 'weight',

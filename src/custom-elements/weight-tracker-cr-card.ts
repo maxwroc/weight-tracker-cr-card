@@ -61,7 +61,7 @@ export class WeightTrackerCard extends LitElement {
   public static getStubConfig(): WeightTrackerCardConfig {
     return {
       type: `custom:${CARD_NAME}`,
-      data_source: 'custom_metrics',
+      data_source: 'custom_records',
       record_type: 'body_weight',
       target: 80,
       unit: 'kg',
@@ -127,7 +127,7 @@ export class WeightTrackerCard extends LitElement {
     // Reattached after disconnectedCallback tore things down (e.g. a
     // dashboard view switch, or a masonry/sections layout reflow) - without
     // this, a reattached card would silently stop reacting to
-    // custom_metrics_updated events for the rest of its life. Also catch up
+    // custom_records_updated events for the rest of its life. Also catch up
     // on anything that may have changed while detached.
     this.subscribeToUpdates();
     void this.fetchData();
@@ -201,7 +201,7 @@ export class WeightTrackerCard extends LitElement {
   }
 
   private scheduleRefresh(): void {
-    // Debounce bursts of `custom_metrics_updated` events.
+    // Debounce bursts of `custom_records_updated` events.
     clearTimeout(this.refreshTimer);
     this.refreshTimer = setTimeout(() => void this.fetchData(), 300);
   }
@@ -336,25 +336,26 @@ export class WeightTrackerCard extends LitElement {
           ${c.show_graph ? this.renderGraph() : nothing}
         </div>
 
-        <weight-tracker-cm-add-dialog
+        <weight-tracker-cr-add-dialog
           .open=${this.dialogOpen}
           .fields=${this.recordFields}
           .prefill=${prefill}
           .heading=${'Add ' + (c.title ?? 'record')}
           @closed=${() => (this.dialogOpen = false)}
           @submit-record=${this.onSubmitRecord}
-        ></weight-tracker-cm-add-dialog>
+        ></weight-tracker-cr-add-dialog>
       </ha-card>
     `;
   }
 
   private renderGauge(): TemplateResult {
+    // The gauge itself derives the "achieved" label/sign from .progress.
     return html`<div class="gauge-wrap">
-      <weight-tracker-cm-gauge
+      <weight-tracker-cr-gauge
         .value=${this.stats.remaining}
         .progress=${this.stats.progress ?? 0}
         .unit=${this.config?.unit ?? 'kg'}
-      ></weight-tracker-cm-gauge>
+      ></weight-tracker-cr-gauge>
     </div>`;
   }
 
@@ -381,11 +382,11 @@ export class WeightTrackerCard extends LitElement {
           </button>`,
         )}
       </div>
-      <weight-tracker-cm-chart
+      <weight-tracker-cr-chart
         .points=${this.points}
         .target=${this.config?.target}
         .unit=${this.config?.unit ?? 'kg'}
-      ></weight-tracker-cm-chart>
+      ></weight-tracker-cr-chart>
     </div>`;
   }
 
@@ -483,9 +484,9 @@ const w = window as unknown as CustomCardsWindow;
 w.customCards = w.customCards || [];
 w.customCards.push({
   type: CARD_NAME,
-  name: 'Weight Tracker (Custom Metrics)',
+  name: 'Weight Tracker (Custom Records)',
   preview: true,
-  description: 'Track weight progress toward a target using the Custom Metrics integration',
+  description: 'Track weight progress toward a target using the Custom Records integration',
 });
 
 console.info(

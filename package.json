@@ -1,9 +1,9 @@
 {
-  "name": "weight-tracker-cm-card",
+  "name": "weight-tracker-cr-card",
   "version": "0.0.0",
-  "description": "Home Assistant Lovelace card for tracking weight against a target, powered by the Custom Metrics integration",
+  "description": "Home Assistant Lovelace card for tracking weight against a target, powered by the Custom Records integration",
   "type": "module",
-  "module": "dist/weight-tracker-cm-card.js",
+  "module": "dist/weight-tracker-cr-card.js",
   "author": "Max Chodorowski",
   "license": "MIT",
   "keywords": [
@@ -13,11 +13,11 @@
     "lovelace",
     "custom-cards",
     "weight",
-    "custom-metrics"
+    "custom-records"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/maxwroc/weight-tracker-cm-card.git"
+    "url": "https://github.com/maxwroc/weight-tracker-cr-card.git"
   },
   "scripts": {
     "build": "rollup -c",

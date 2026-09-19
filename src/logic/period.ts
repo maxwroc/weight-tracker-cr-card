@@ -10,7 +10,7 @@ export interface PeriodRange {
   end: Date;
   /**
    * How to aggregate. `raw` means "return individual records"; otherwise the
-   * value is a Custom Metrics aggregate bucket size.
+   * value is a Custom Records aggregate bucket size.
    */
   bucket: Bucket;
 }

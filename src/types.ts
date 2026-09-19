@@ -1,18 +1,18 @@
 import type { HomeAssistant, LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
 
 /**
- * Which backend supplies the data. Only `custom_metrics` is implemented today;
+ * Which backend supplies the data. Only `custom_records` is implemented today;
  * the enum leaves room for a future `entity` (regular HA entity + recorder
  * history) source without a breaking config change.
  */
-export type DataSourceKind = 'custom_metrics';
+export type DataSourceKind = 'custom_records';
 
 /** Time ranges offered by the period selector. */
 export type Period = '7d' | '1m' | '6m' | '1y';
 
 export const PERIODS: Period[] = ['7d', '1m', '6m', '1y'];
 
-/** A single Custom Metrics filter condition, e.g. `{ name: 'Max' }`. */
+/** A single Custom Records filter condition, e.g. `{ name: 'Max' }`. */
 export type MetricFilter = Record<string, string | number | boolean>;
 
 /** Optional colour overrides. Any omitted value falls back to a theme colour. */
@@ -28,11 +28,11 @@ export interface WeightTrackerCardConfig extends LovelaceCardConfig {
   type: string;
   title?: string;
   data_source?: DataSourceKind;
-  /** Custom Metrics record type key (required for the custom_metrics source). */
+  /** Custom Records record type key (required for the custom_records source). */
   record_type?: string;
   /** Numeric field key holding the weight value. Defaults to the first number field. */
   value_field?: string;
-  /** Server-side Custom Metrics filter conditions. */
+  /** Server-side Custom Records filter conditions. */
   filter?: MetricFilter[];
   /** Target/goal weight. */
   target?: number;
@@ -67,7 +67,7 @@ export interface WeightPoint {
   y: number;
 }
 
-/** Field definition as returned by Custom Metrics `list_record_types`. */
+/** Field definition as returned by Custom Records `list_record_types`. */
 export interface RecordTypeField {
   key: string;
   label?: string;
@@ -85,7 +85,7 @@ export interface RecordType {
 
 /**
  * Home Assistant object alias. Aliased so we have a single spot to extend if a
- * future data source needs extra frontend surface. The Custom Metrics source
+ * future data source needs extra frontend surface. The Custom Records source
  * uses the standard `hass.connection` WebSocket API.
  */
 export type HomeAssistantExt = HomeAssistant;

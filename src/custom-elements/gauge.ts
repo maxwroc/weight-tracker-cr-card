@@ -12,12 +12,13 @@ const RADIUS = CENTER - STROKE / 2 - 2;
  * is the remaining distance to the goal; the coloured arc shows how far along
  * the way the current weight is.
  */
-@customElement('weight-tracker-cm-gauge')
+@customElement('weight-tracker-cr-gauge')
 export class WeightTrackerGauge extends LitElement {
   @property({ type: Number }) public value?: number;
   @property({ type: Number }) public progress = 0;
   @property({ type: String }) public unit = 'kg';
-  @property({ type: String }) public label = 'REMAIN';
+  /** Overrides the auto-derived label ('REMAIN' / 'GOAL MET'), if set. */
+  @property({ type: String }) public label?: string;
 
   static styles = css`
     :host {
@@ -61,14 +62,23 @@ export class WeightTrackerGauge extends LitElement {
   `;
 
   render() {
+    // progress is already direction-agnostic (clamped to 1 once the goal is
+    // reached or surpassed, regardless of whether the target is above or
+    // below the starting weight) - unlike the raw sign of `value`, which
+    // flips meaning depending on goal direction, so it's the reliable
+    // signal for "has the goal been reached".
+    const achieved = this.progress >= 1;
+    const label = this.label ?? (achieved ? 'GOAL MET' : 'REMAIN');
     const display =
-      this.value === undefined ? '—' : Math.abs(this.value).toLocaleString(undefined, {
-        maximumFractionDigits: 1,
-      });
+      this.value === undefined
+        ? '—'
+        : `${achieved ? '-' : ''}${Math.abs(this.value).toLocaleString(undefined, {
+            maximumFractionDigits: 1,
+          })}`;
     const progress = progressPath(CENTER, CENTER, RADIUS, this.progress);
 
     return html`
-      <svg viewBox="0 0 ${SIZE} ${SIZE}" role="img" aria-label="${this.label} ${display} ${this.unit}">
+      <svg viewBox="0 0 ${SIZE} ${SIZE}" role="img" aria-label="${label} ${display} ${this.unit}">
         <path class="track" style="stroke-width:${STROKE}" d="${trackPath(CENTER, CENTER, RADIUS)}" />
         ${progress
           ? svg`<path class="progress" style="stroke-width:${STROKE}" d="${progress}" />`
@@ -76,7 +86,7 @@ export class WeightTrackerGauge extends LitElement {
         <text class="value" x="${CENTER}" y="${CENTER - 6}">
           ${display}<tspan class="unit"> ${this.unit}</tspan>
         </text>
-        <text class="label" x="${CENTER}" y="${CENTER + 30}">${this.label}</text>
+        <text class="label" x="${CENTER}" y="${CENTER + 30}">${label}</text>
       </svg>
     `;
   }
@@ -84,6 +94,6 @@ export class WeightTrackerGauge extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'weight-tracker-cm-gauge': WeightTrackerGauge;
+    'weight-tracker-cr-gauge': WeightTrackerGauge;
   }
 }

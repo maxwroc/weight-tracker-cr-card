@@ -1,7 +1,7 @@
 import { LitElement, css, html, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { CARD_EDITOR_NAME } from '../const';
-import { CustomMetricsDataSource } from '../data/custom-metrics-source';
+import { CustomRecordsDataSource } from '../data/custom-records-source';
 import type { HomeAssistant, LovelaceCardEditor, WeightTrackerCardConfig } from '../types';
 
 /** Schema fed to HA's `ha-form`. */
@@ -79,7 +79,7 @@ export class WeightTrackerCardEditor extends LitElement implements LovelaceCardE
   /**
    * Look up the record type's first `number` field so the (optional)
    * `value_field` selector can show what it will resolve to at runtime,
-   * mirroring the actual default used by {@link CustomMetricsDataSource}.
+   * mirroring the actual default used by {@link CustomRecordsDataSource}.
    */
   private maybeLoadAutoValueField(): void {
     const recordType = this.config.record_type;
@@ -88,7 +88,7 @@ export class WeightTrackerCardEditor extends LitElement implements LovelaceCardE
     }
     this.queriedRecordType = recordType;
     const requestedRecordType = recordType;
-    const source = new CustomMetricsDataSource(this.hass, { recordType });
+    const source = new CustomRecordsDataSource(this.hass, { recordType });
     source
       .getRecordType()
       .then((rt) => {
@@ -146,7 +146,7 @@ export class WeightTrackerCardEditor extends LitElement implements LovelaceCardE
         @value-changed=${this.onValueChanged}
       ></ha-form>
       <p class="hint">
-        This card currently reads from the <b>Custom Metrics</b> integration. Filters and colour
+        This card currently reads from the <b>Custom Records</b> integration. Filters and colour
         overrides can be set in YAML.
       </p>
     `;

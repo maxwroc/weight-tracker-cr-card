@@ -46,8 +46,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/weight-tracker-cm-card.js
-          asset_name: weight-tracker-cm-card.js
+          file: dist/weight-tracker-cr-card.js
+          asset_name: weight-tracker-cr-card.js
           tag: ${{ github.ref }}
           overwrite: true
 
