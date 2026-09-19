@@ -17,6 +17,8 @@ This card is for fresh Custom Records installations. Only the `custom_records`
 backend and `custom:weight-tracker-cr-card` card type are supported; legacy
 integration and card identifiers are not supported.
 
+<img width="506" height="706" alt="image" src="https://github.com/user-attachments/assets/4da65772-bd3a-4d81-868a-47fabf4cd0bf" />
+
 ---
 
 ## Features
