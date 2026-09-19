@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      exclude: ['src/weight-tracker-cm-card.ts', 'src/**/*.css.ts'],
+      exclude: ['src/weight-tracker-cr-card.ts', 'src/**/*.css.ts'],
     },
   },
 });

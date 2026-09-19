@@ -1,4 +1,4 @@
-# Weight Tracker Card (Custom Metrics)
+# Weight Tracker Card (Custom Records)
 
 [![hacs][hacs-badge]][hacs-url]
 
@@ -7,11 +7,15 @@ target**. It renders a progress **gauge**, a **stats** block (starting / current
 goal), and a **line graph** with selectable time periods and a dashed target
 line — all in a single card — plus a button to add new measurements.
 
-It is powered by the [**Custom Metrics**][custom-metrics] integration.
+It is powered by the [**Custom Records**][custom-records] integration.
 
-> ⚠️ **Requires the Custom Metrics integration.** This card reads and writes
-> data through the Custom Metrics WebSocket API. Support for regular Home
+> ⚠️ **Requires the Custom Records integration.** This card reads and writes
+> data through the Custom Records WebSocket API. Support for regular Home
 > Assistant entities + recorder history is planned (see [Roadmap](#roadmap)).
+
+This card is for fresh Custom Records installations. Only the `custom_records`
+backend and `custom:weight-tracker-cr-card` card type are supported; legacy
+integration and card identifiers are not supported.
 
 ---
 
@@ -35,18 +39,18 @@ It is powered by the [**Custom Metrics**][custom-metrics] integration.
 
 ### HACS (recommended)
 
-1. Make sure the [Custom Metrics][custom-metrics] integration is installed and
+1. Make sure the [Custom Records][custom-records] integration is installed and
    you have a numeric record type (e.g. `weight`).
 2. In HACS → **Frontend**, add this repository as a **custom repository** of
-   category **Lovelace**, then install **Weight Tracker (Custom Metrics)**.
+   category **Lovelace**, then install **Weight Tracker (Custom Records)**.
 3. Reload your browser (a hard refresh may be needed the first time).
 
 ### Manual
 
-1. Download `weight-tracker-cm-card.js` from the latest [release][releases].
+1. Download `weight-tracker-cr-card.js` from the latest [release][releases].
 2. Copy it into your Home Assistant `config/www/` folder.
 3. Add it as a dashboard resource: **Settings → Dashboards → ⋮ → Resources →
-   Add resource**, URL `/local/weight-tracker-cm-card.js`, type **JavaScript
+   Add resource**, URL `/local/weight-tracker-cr-card.js`, type **JavaScript
    Module**.
 
 ## Usage
@@ -54,7 +58,7 @@ It is powered by the [**Custom Metrics**][custom-metrics] integration.
 Minimal configuration:
 
 ```yaml
-type: custom:weight-tracker-cm-card
+type: custom:weight-tracker-cr-card
 title: Weight Tracker
 record_type: body_weight
 target: 86
@@ -63,7 +67,7 @@ target: 86
 A more complete example:
 
 ```yaml
-type: custom:weight-tracker-cm-card
+type: custom:weight-tracker-cr-card
 title: Max's Weight
 record_type: body_weight
 value_field: weight        # numeric field to plot (defaults to the first number field)
@@ -71,7 +75,7 @@ target: 86
 start_weight: 104.6        # optional; otherwise the earliest record is used
 unit: kg
 default_period: 1m         # 7d | 1m | 6m | 1y
-filter:                    # Custom Metrics server-side filter
+filter:                    # Custom Records server-side filter
   - name: Max
 show_gauge: true
 show_stats: true
@@ -87,15 +91,15 @@ colors:                    # all optional; omit to use theme colours
 
 | Option            | Type      | Default                     | Description |
 | ----------------- | --------- | --------------------------- | ----------- |
-| `record_type`     | string    | **required**                | Custom Metrics record type key (e.g. `body_weight`). |
+| `record_type`     | string    | **required**                | Custom Records record type key (e.g. `body_weight`). |
 | `title`           | string    | *(none)*                    | Card header text. |
-| `data_source`     | string    | `custom_metrics`            | Backend. Only `custom_metrics` is supported today. |
+| `data_source`     | string    | `custom_records`            | Backend. Only `custom_records` is supported today. |
 | `value_field`     | string    | first `number` field        | Numeric field key to plot (e.g. `weight`). |
 | `target`          | number    | *(none)*                    | Goal weight (gauge + target line). |
 | `start_weight`    | number    | earliest known record       | Starting weight used by the gauge. |
 | `unit`            | string    | `kg`                        | Display unit. |
 | `default_period`  | string    | `1m`                        | Initial graph period: `7d`, `1m`, `6m`, `1y`. Only affects the graph - the gauge/stats always reflect current progress regardless of the selected period. |
-| `filter`          | list      | *(none)*                    | Custom Metrics filter conditions (see below). |
+| `filter`          | list      | *(none)*                    | Custom Records filter conditions (see below). |
 | `show_gauge`      | boolean   | `true`                      | Show the progress gauge. |
 | `show_stats`      | boolean   | `true`                      | Show the stats block. |
 | `show_graph`      | boolean   | `true`                      | Show the line graph. |
@@ -144,7 +148,7 @@ No Docker / devcontainer required — just Node.
 
 ```bash
 npm ci            # install (node_modules ~300 MB)
-npm run build     # produce dist/weight-tracker-cm-card.js
+npm run build     # produce dist/weight-tracker-cr-card.js
 npm run watch     # rebuild on change + serve on http://localhost:5000
 npm test          # run the unit tests
 npm run lint      # eslint
@@ -154,10 +158,10 @@ npm run type-check
 ### Testing against your Home Assistant
 
 - **Served build:** run `npm run watch`, then add a dashboard **Resource**
-  pointing at `http://<dev-machine>:5000/weight-tracker-cm-card.js` (module).
+  pointing at `http://<dev-machine>:5000/weight-tracker-cr-card.js` (module).
   Requires your HA host to be able to reach this machine.
-- **Copied build:** run `npm run build` and copy `dist/weight-tracker-cm-card.js`
-  into HA `config/www/`, then add `/local/weight-tracker-cm-card.js` as a module
+- **Copied build:** run `npm run build` and copy `dist/weight-tracker-cr-card.js`
+  into HA `config/www/`, then add `/local/weight-tracker-cr-card.js` as a module
   resource.
 
 ### Standalone demo (no Home Assistant)
@@ -182,7 +186,7 @@ npx http-server . -p 8123 -c-1
 
 MIT — see [LICENSE](LICENSE).
 
-[custom-metrics]: https://github.com/maxwroc/custom_metrics
-[releases]: https://github.com/maxwroc/weight-tracker-cm-card/releases
+[custom-records]: https://github.com/maxwroc/custom_records
+[releases]: https://github.com/maxwroc/weight-tracker-cr-card/releases
 [hacs-badge]: https://img.shields.io/badge/HACS-Custom-41BDF5.svg
 [hacs-url]: https://github.com/hacs/integration

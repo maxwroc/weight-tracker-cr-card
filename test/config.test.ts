@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { ConfigError, normalizeConfig } from '../src/config';
 
 describe('normalizeConfig', () => {
-  const base = { type: 'custom:weight-tracker-cm-card', record_type: 'weight' };
+  const base = { type: 'custom:weight-tracker-cr-card', record_type: 'weight' };
 
   it('applies defaults', () => {
     const c = normalizeConfig(base);
-    expect(c.data_source).toBe('custom_metrics');
+    expect(c.data_source).toBe('custom_records');
     expect(c.unit).toBe('kg');
     expect(c.default_period).toBe('1m');
     expect(c.show_gauge).toBe(true);
@@ -35,6 +35,18 @@ describe('normalizeConfig', () => {
 
   it('rejects unsupported data sources', () => {
     expect(() => normalizeConfig({ ...base, data_source: 'entity' as never })).toThrow(ConfigError);
+  });
+
+  it('accepts the canonical data source explicitly', () => {
+    expect(normalizeConfig({ ...base, data_source: 'custom_records' }).data_source).toBe(
+      'custom_records',
+    );
+  });
+
+  it('rejects the legacy data source rather than treating it as an alias', () => {
+    expect(() =>
+      normalizeConfig({ ...base, data_source: 'custom_metrics' as never }),
+    ).toThrow('Unsupported data_source "custom_metrics". Only "custom_records" is supported');
   });
 
   it('rejects invalid default_period', () => {

@@ -28,21 +28,21 @@ interface ListRecordTypesResponse {
   record_types?: RecordType[];
 }
 
-export interface CustomMetricsSourceOptions {
+export interface CustomRecordsSourceOptions {
   recordType: string;
   valueField?: string;
   filter?: MetricFilter[];
 }
 
 /**
- * {@link DataSource} backed by the Custom Metrics integration WebSocket API.
+ * {@link DataSource} backed by the Custom Records integration WebSocket API.
  */
-export class CustomMetricsDataSource implements DataSource {
+export class CustomRecordsDataSource implements DataSource {
   private recordTypeCache?: RecordType;
 
   constructor(
     private readonly hass: HomeAssistantExt,
-    private readonly options: CustomMetricsSourceOptions,
+    private readonly options: CustomRecordsSourceOptions,
   ) {}
 
   async fetchPoints(range: PeriodRange): Promise<WeightPoint[]> {
@@ -50,7 +50,7 @@ export class CustomMetricsDataSource implements DataSource {
 
     if (range.bucket === 'raw') {
       const response = await this.hass.connection.sendMessagePromise<ListRecordsResponse>({
-        type: 'custom_metrics/list_records',
+        type: 'custom_records/list_records',
         record_type: this.options.recordType,
         start: range.start.toISOString(),
         end: range.end.toISOString(),
@@ -65,7 +65,7 @@ export class CustomMetricsDataSource implements DataSource {
     }
 
     const response = await this.hass.connection.sendMessagePromise<ApexSeriesResponse>({
-      type: 'custom_metrics/aggregate_records',
+      type: 'custom_records/aggregate_records',
       record_type: this.options.recordType,
       op: 'avg',
       bucket: range.bucket,
@@ -85,7 +85,7 @@ export class CustomMetricsDataSource implements DataSource {
 
   async addRecord(fields: Record<string, unknown>, timestamp?: Date): Promise<void> {
     await this.hass.connection.sendMessagePromise({
-      type: 'custom_metrics/add_record',
+      type: 'custom_records/add_record',
       record_type: this.options.recordType,
       fields,
       ...(timestamp ? { timestamp: timestamp.toISOString() } : {}),
@@ -100,7 +100,7 @@ export class CustomMetricsDataSource implements DataSource {
     const response = await this.hass.connection.sendMessagePromise<
       ListRecordTypesResponse | RecordType[]
     >({
-      type: 'custom_metrics/list_record_types',
+      type: 'custom_records/list_record_types',
     });
 
     const list = Array.isArray(response) ? response : (response?.record_types ?? []);
@@ -109,7 +109,7 @@ export class CustomMetricsDataSource implements DataSource {
   }
 
   async subscribeUpdates(callback: () => void): Promise<() => void> {
-    return this.hass.connection.subscribeEvents(() => callback(), 'custom_metrics_updated');
+    return this.hass.connection.subscribeEvents(() => callback(), 'custom_records_updated');
   }
 
   /**

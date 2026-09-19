@@ -35,9 +35,9 @@ const onwarn = (warning, warn) => {
 };
 
 export default {
-  input: 'src/weight-tracker-cm-card.ts',
+  input: 'src/weight-tracker-cr-card.ts',
   output: {
-    file: 'dist/weight-tracker-cm-card.js',
+    file: 'dist/weight-tracker-cr-card.js',
     format: 'es',
     inlineDynamicImports: true,
     sourcemap: dev ? true : false,

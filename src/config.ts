@@ -12,15 +12,15 @@ export function normalizeConfig(config: WeightTrackerCardConfig): ResolvedConfig
     throw new ConfigError('Missing configuration');
   }
 
-  const dataSource = config.data_source ?? 'custom_metrics';
-  if (dataSource !== 'custom_metrics') {
+  const dataSource = config.data_source ?? 'custom_records';
+  if (dataSource !== 'custom_records') {
     throw new ConfigError(
-      `Unsupported data_source "${dataSource}". Only "custom_metrics" is supported for now.`,
+      `Unsupported data_source "${dataSource}". Only "custom_records" is supported for now.`,
     );
   }
 
   if (!config.record_type) {
-    throw new ConfigError('You must set "record_type" (the Custom Metrics record type key).');
+    throw new ConfigError('You must set "record_type" (the Custom Records record type key).');
   }
 
   const period = config.default_period;
